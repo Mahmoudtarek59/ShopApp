@@ -15,25 +15,25 @@ class CartItem {
 }
 
 class Cart extends ChangeNotifier {
-  Map<String, CartItem> _items=Map<String,CartItem>();
+  Map<String, CartItem> _items = Map<String, CartItem>();
 
   Map<String, CartItem> get items {
     return {..._items};
   }
 
-  int get itemsCount{
-    int count=0;
+  int get itemsCount {
+    int count = 0;
     _items.forEach((productId, cartItem) {
       count += cartItem.quantity;
     });
 //    return _items.length;
-  return count;
+    return count;
   }
 
-  double get totalPrice{
-    double total=0.0;
+  double get totalPrice {
+    double total = 0.0;
     _items.forEach((productId, cartItem) {
-      total += (cartItem.price*cartItem.quantity);
+      total += (cartItem.price * cartItem.quantity);
     });
     return total;
   }
@@ -62,12 +62,31 @@ class Cart extends ChangeNotifier {
     notifyListeners();
   }
 
-  void removeItem(String cartItemID){
-    _items.removeWhere((key, value) => value.id == cartItemID);
+  void removeProduct({String cartProductID}) {
+    _items.remove(cartProductID);
     notifyListeners();
   }
 
-  void clear(){
+  void removeSingleItem({String cartProductID}) {
+    if (!_items.containsKey(cartProductID)) {
+      return;
+    }
+    if (_items[cartProductID].quantity > 1) {
+      _items.update(
+          cartProductID,
+          (existingCartItem) => CartItem(
+                id: existingCartItem.id,
+                title: existingCartItem.title,
+                quantity: existingCartItem.quantity - 1,
+                price: existingCartItem.price,
+              ));
+    }else{
+      removeProduct(cartProductID: cartProductID);
+    }
+    notifyListeners();
+  }
+
+  void clear() {
     _items.clear();
     notifyListeners();
   }

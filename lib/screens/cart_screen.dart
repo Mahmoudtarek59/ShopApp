@@ -43,7 +43,7 @@ class CartScreen extends StatelessWidget {
           ),
           SizedBox(height: 10,),
           Expanded(child: ListView.builder(itemCount: cartData.items.length,itemBuilder: (context,index){
-            return CartItemWidget(cartItem: cartData.items.values.toList()[index],);//convert map to list
+            return CartItemWidget(cartItem: cartData.items.values.toList()[index],productID: cartData.items.keys.toList()[index],);//convert map to list
           },)),
         ],
       ),

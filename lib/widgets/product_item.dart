@@ -6,17 +6,16 @@ import 'package:shopapp/providers/product.dart';
 import 'package:shopapp/screens/product_details_screen.dart';
 
 class ProductItem extends StatelessWidget {
-
-
   @override
   Widget build(BuildContext context) {
-    Product item=Provider.of<Product>(context);
-    Cart cart=Provider.of<Cart>(context);
+    Product item = Provider.of<Product>(context);
+    Cart cart = Provider.of<Cart>(context);
     return ClipRRect(
       borderRadius: BorderRadius.circular(10),
       child: GridTile(
         child: InkWell(
-          onTap: ()=>Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ProductDetailScreen(item: item))),
+          onTap: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => ProductDetailScreen(item: item))),
           child: Image.network(
             item.imageUrl,
             fit: BoxFit.cover,
@@ -25,7 +24,8 @@ class ProductItem extends StatelessWidget {
         footer: GridTileBar(
           backgroundColor: Colors.black87,
           leading: IconButton(
-            icon: Icon(item.isFavorite?Icons.favorite:Icons.favorite_border),
+            icon:
+                Icon(item.isFavorite ? Icons.favorite : Icons.favorite_border),
             onPressed: () {
               item.toggleFavoriteStatus();
             },
@@ -34,7 +34,16 @@ class ProductItem extends StatelessWidget {
           trailing: IconButton(
             icon: Icon(Icons.shopping_cart),
             onPressed: () {
-              cart.addItem(item.id,item.title, item.price);
+              cart.addItem(item.id, item.title, item.price);
+              Scaffold.of(context).hideCurrentSnackBar();//remove old snackBar
+              Scaffold.of(context).showSnackBar(SnackBar(
+                content: Text('Added item to cart!',),
+                action: SnackBarAction(label: 'UNDO',onPressed: (){
+                  print('object');
+                  cart.removeSingleItem(cartProductID: item.id);
+                },),
+                duration: Duration(seconds: 2),
+              ));
             },
             color: Theme.of(context).accentColor,
           ),
