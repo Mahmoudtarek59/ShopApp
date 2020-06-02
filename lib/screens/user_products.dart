@@ -5,10 +5,14 @@ import 'package:shopapp/screens/edit_product_screen.dart';
 import 'package:shopapp/widgets/drawer_items.dart';
 import 'package:shopapp/widgets/user_product_item.dart';
 
-class UserProdicts extends StatelessWidget {
+class UserProducts extends StatelessWidget {
+  Future<void> _refreshProducts(BuildContext context) async {
+    await Provider.of<Products>(context, listen: false).fetchData(true);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final productsData = Provider.of<Products>(context);
+//    final productsData = Provider.of<Products>(context);
     return Scaffold(
       appBar: AppBar(
         title: Text('Your Products'),
@@ -20,13 +24,27 @@ class UserProdicts extends StatelessWidget {
         ],
       ),
       drawer: DrawerItems(),
-      body: Padding(
-        padding: EdgeInsets.all(8.0),
-        child: ListView.builder(
-            itemCount: productsData.itemsData.length,
-            itemBuilder: (context, index) => UserProductItem(
-                  product: productsData.itemsData[index],
-                )),
+      body: FutureBuilder(
+        future: _refreshProducts(context),
+        builder: (context, snapshot) =>
+            snapshot.connectionState == ConnectionState.waiting
+                ? Center(
+                    child: CircularProgressIndicator(),
+                  )
+                : RefreshIndicator(
+                    onRefresh: () => _refreshProducts(context),
+                    child: Consumer<Products>(
+
+                      builder: (context,productsData,_)=>Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: ListView.builder(
+                            itemCount: productsData.itemsData.length,
+                            itemBuilder: (context, index) => UserProductItem(
+                                  product: productsData.itemsData[index],
+                                )),
+                      ),
+                    ),
+                  ),
       ),
     );
   }

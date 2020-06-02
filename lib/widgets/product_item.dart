@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shopapp/providers/auth.dart';
 import 'package:shopapp/providers/cart.dart';
 import 'package:shopapp/providers/product.dart';
 import 'package:shopapp/screens/product_details_screen.dart';
@@ -8,17 +9,21 @@ import 'package:shopapp/screens/product_details_screen.dart';
 class ProductItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    Product item = Provider.of<Product>(context);
-    Cart cart = Provider.of<Cart>(context);
+    final item = Provider.of<Product>(context);
+    final cart = Provider.of<Cart>(context);
+    final authData=Provider.of<Auth>(context,listen: false);
     return ClipRRect(
       borderRadius: BorderRadius.circular(10),
       child: GridTile(
         child: InkWell(
           onTap: () => Navigator.of(context).push(MaterialPageRoute(
               builder: (context) => ProductDetailScreen(item: item))),
-          child: Image.network(
-            item.imageUrl,
-            fit: BoxFit.cover,
+          child: Hero(
+            tag: item.id,
+            child: Image.network(
+              item.imageUrl,
+              fit: BoxFit.cover,
+            ),
           ),
         ),
         footer: GridTileBar(
@@ -27,7 +32,7 @@ class ProductItem extends StatelessWidget {
             icon:
                 Icon(item.isFavorite ? Icons.favorite : Icons.favorite_border),
             onPressed: () {
-              item.toggleFavoriteStatus();
+              item.toggleFavoriteStatus(authData.token,authData.userId);
             },
             color: Theme.of(context).accentColor,
           ),

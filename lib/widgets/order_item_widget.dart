@@ -31,10 +31,12 @@ class _OrderItemWidgetState extends State<OrderItemWidget> {
                   });
                 }),
           ),
-          if (isExpanded)
-            Container(
+//          if (isExpanded)
+            AnimatedContainer(
+              duration: Duration(milliseconds: 300),
+              curve: Curves.easeIn,
               padding: EdgeInsets.symmetric(horizontal: 15,vertical: 4),
-              height: min(widget.orderItem.products.length * 20.0 + 10.0 , 160), //minimum height fit values
+              height: !isExpanded?0:min(widget.orderItem.products.length * 20.0 + 10.0 , 160), //minimum height fit values
               child: ListView(
                 children: widget.orderItem.products.map((product) => Row(
                   children: [

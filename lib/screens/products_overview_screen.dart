@@ -21,6 +21,20 @@ class ProductsOverviewScreen extends StatefulWidget {
 
 class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
   bool _showFavorite = false;
+  bool isLoading = false;
+
+  @override
+  void initState() {
+    isLoading = true;
+    Future.delayed(Duration.zero).then((_) {
+      Provider.of<Products>(context, listen: false).fetchData().then((_) {
+//        setState(() {
+        isLoading = false;
+//        });
+      });
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,29 +68,39 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
             ],
           ),
           Badge(
-            child:
-                IconButton(icon: Icon(Icons.shopping_cart), onPressed: ()=>
-                    Navigator.of(context).push(MaterialPageRoute(builder: (_)=>CartScreen())),),
+            child: IconButton(
+              icon: Icon(Icons.shopping_cart),
+              onPressed: () => Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (_) => CartScreen())),
+            ),
             value: Provider.of<Cart>(context).itemsCount.toString(),
           ),
         ],
       ),
       drawer: DrawerItems(),
-      body: GridView.builder(
-        padding: EdgeInsets.all(10),
-        itemCount: products.length,
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          childAspectRatio: 3 / 2,
-          crossAxisSpacing: 10,
-          mainAxisSpacing: 10,
-        ),
-        itemBuilder: (context, index) => ChangeNotifierProvider.value(
-          value: products[index],
-          child: ProductItem(),
-        ),
-      ),
-
+      body: isLoading
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
+          : RefreshIndicator(
+              onRefresh: () async {
+                await Provider.of<Products>(context, listen: false).fetchData();
+              },
+              child: GridView.builder(
+                padding: EdgeInsets.all(10),
+                itemCount: products.length,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 3 / 2,
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
+                ),
+                itemBuilder: (context, index) => ChangeNotifierProvider.value(
+                  value: products[index],
+                  child: ProductItem(),
+                ),
+              ),
+            ),
     );
   }
 }

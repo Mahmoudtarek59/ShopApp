@@ -7,36 +7,65 @@ import 'package:shopapp/screens/edit_product_screen.dart';
 class UserProductItem extends StatelessWidget {
   final Product product;
   UserProductItem({this.product});
+//  bool isloading=false;
 
   @override
   Widget build(BuildContext context) {
+    final scaffold=Scaffold.of(context);
     return Card(
       margin: EdgeInsets.all(8),
 //      elevation: 5,
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: ListTile(
-          leading: CircleAvatar(backgroundImage: NetworkImage(product.imageUrl),),
+          leading: CircleAvatar(
+            backgroundImage: NetworkImage(product.imageUrl),
+          ),
           title: Text(product.title),
           trailing: FittedBox(
             child: Row(
               children: [
-                IconButton(icon: Icon(Icons.edit,color: Theme.of(context).primaryColor,), onPressed: (){
-                  Navigator.of(context).push(MaterialPageRoute(builder: (_)=>EditProductScreen(EProduct: product,)));
-                }),
-                IconButton(icon: Icon(Icons.delete,color: Theme.of(context).errorColor,), onPressed: (){
-                  showDialog(context: context,builder: (context)=>AlertDialog(
-                    title: Text('Are you sure?'),
-                    content: Text('Do you want to remove the item from the products?'),
-                    actions: [
-                      FlatButton(onPressed: ()=>Navigator.of(context).pop(), child: Text('No')),
-                      FlatButton(onPressed: (){
-                        Provider.of<Products>(context,listen: false).deleteProduct(product);
-                        Navigator.of(context).pop();}, child: Text('Yes')),
-                    ],
-                  ));
-
-                }),
+                IconButton(
+                    icon: Icon(
+                      Icons.edit,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                    onPressed: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (_) => EditProductScreen(
+                                EProduct: product,
+                              )));
+                    }),
+                IconButton(
+                    icon: Icon(
+                      Icons.delete,
+                      color: Theme.of(context).errorColor,
+                    ),
+                    onPressed: () {
+                      showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                                title: Text('Are you sure?'),
+                                content: Text(
+                                    'Do you want to remove the item from the products?'),
+                                actions: [
+                                  FlatButton(
+                                      onPressed: () =>
+                                          Navigator.of(context).pop(),
+                                      child: Text('No')),
+                                  FlatButton(
+                                      onPressed: () {
+                                          Provider.of<Products>(context, listen: false).deleteProduct(product).then((value){
+                                                if(value==false){
+                                                  scaffold.showSnackBar(SnackBar(content: Text('Deleting failed!')));
+                                                }
+                                          });
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: Text('Yes')),
+                                ],
+                              ));
+                    }),
               ],
             ),
           ),

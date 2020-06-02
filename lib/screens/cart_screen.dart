@@ -5,7 +5,14 @@ import 'package:shopapp/providers/cart.dart';
 import 'package:shopapp/providers/orders.dart';
 import 'package:shopapp/widgets/cart_item_widget.dart';
 
-class CartScreen extends StatelessWidget {
+class CartScreen extends StatefulWidget {
+  @override
+  _CartScreenState createState() => _CartScreenState();
+}
+
+class _CartScreenState extends State<CartScreen> {
+  bool isLoading=false;
+
   @override
   Widget build(BuildContext context) {
     final cartData = Provider.of<Cart>(context);
@@ -29,22 +36,45 @@ class CartScreen extends StatelessWidget {
                   Spacer(),
                   Chip(
                     label: Text(
-                      '\$${cartData.totalPrice.toStringAsFixed(2)}',style: TextStyle(color: Theme.of(context).primaryTextTheme.title.color),
+                      '\$${cartData.totalPrice.toStringAsFixed(2)}',
+                      style: TextStyle(
+                          color:
+                              Theme.of(context).primaryTextTheme.title.color),
                     ),
                     backgroundColor: Theme.of(context).primaryColor,
                   ),
-                  FlatButton(onPressed: (){
-                    Provider.of<Orders>(context,listen: false).addOrder(cartData.items.values.toList(), cartData.totalPrice);
-                    cartData.clear();
-                  }, child: Text('ORDER NOW'),textColor: Theme.of(context).primaryColor,),
+                  isLoading? CircularProgressIndicator(strokeWidth: 1,backgroundColor: Colors.grey,):FlatButton(
+                    onPressed: (cartData.totalPrice<=0 || isLoading)?null : () async{
+                      setState((){
+                        isLoading =true;
+                      });
+                      await Provider.of<Orders>(context, listen: false).addOrder(
+                          cartData.items.values.toList(), cartData.totalPrice);
+                      setState(() {
+                        isLoading=false;
+                      });
+                      cartData.clear();
+                    },
+                    child: Text('ORDER NOW'),
+                    textColor: Theme.of(context).primaryColor,
+                  ),
                 ],
               ),
             ),
           ),
-          SizedBox(height: 10,),
-          Expanded(child: ListView.builder(itemCount: cartData.items.length,itemBuilder: (context,index){
-            return CartItemWidget(cartItem: cartData.items.values.toList()[index],productID: cartData.items.keys.toList()[index],);//convert map to list
-          },)),
+          SizedBox(
+            height: 10,
+          ),
+          Expanded(
+              child: ListView.builder(
+            itemCount: cartData.items.length,
+            itemBuilder: (context, index) {
+              return CartItemWidget(
+                cartItem: cartData.items.values.toList()[index],
+                productID: cartData.items.keys.toList()[index],
+              ); //convert map to list
+            },
+          )),
         ],
       ),
     );

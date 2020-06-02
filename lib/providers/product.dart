@@ -1,5 +1,7 @@
-import 'package:flutter/cupertino.dart';
+import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
+import 'package:http/http.dart' as http;
 class Product extends ChangeNotifier{
   final String id;
   final String title;
@@ -17,8 +19,23 @@ class Product extends ChangeNotifier{
     this.isFavorite = false,
   });
 
-  void toggleFavoriteStatus(){
+  void toggleFavoriteStatus(String token,String userId)async{
+    final oldStatus =isFavorite;
     isFavorite = !isFavorite;
     notifyListeners();
+
+    final url= 'https://shopapp-c506a.firebaseio.com/userFavorites/$userId/$id.json?auth=$token';
+    try{
+      final response=await http.put(url,body: json.encode(
+        isFavorite,
+      ));
+      if(response.statusCode>=400){
+        isFavorite=oldStatus;
+        notifyListeners();
+      }
+    }catch(e){
+      isFavorite=oldStatus;
+      notifyListeners();
+    }
   }
 }
